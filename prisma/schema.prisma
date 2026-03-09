@@ -1,0 +1,179 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  phone         String    @unique
+  password      String
+  role          Role      @default(USER)
+  isVerified    Boolean   @default(false)
+  refreshToken  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  addresses     Address[]
+  bookings      Booking[]
+  reviews       Review[]
+  otps          OTP[]
+
+  @@map("users")
+}
+
+model Address {
+  id         String   @id @default(uuid())
+  label      String
+  street     String
+  city       String
+  state      String
+  pincode    String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bookings   Booking[]
+
+  @@map("addresses")
+}
+
+model OTP {
+  id        String   @id @default(uuid())
+  code      String
+  type      String   // 'signup' | 'forgot_password' | 'login'
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("otps")
+}
+
+model ServiceCategory {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  emoji       String
+  description String
+  color       String
+  services    Service[]
+  createdAt   DateTime  @default(now())
+
+  @@map("service_categories")
+}
+
+model Service {
+  id           String   @id @default(uuid())
+  name         String
+  description  String
+  price        Float
+  duration     Int      // minutes
+  emoji        String
+  warranty     String?
+  popular      Boolean  @default(false)
+  rating       Float    @default(4.5)
+  reviewCount  Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  categoryId   String
+  category     ServiceCategory @relation(fields: [categoryId], references: [id])
+
+  bookings     Booking[]
+
+  @@map("services")
+}
+
+model Technician {
+  id           String   @id @default(uuid())
+  name         String
+  phone        String   @unique
+  email        String?  @unique
+  avatar       String?
+  rating       Float    @default(4.5)
+  reviewCount  Int      @default(0)
+  experience   Int      // years
+  expertise    String[] // service category ids
+  isAvailable  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  bookings     Booking[]
+  reviews      Review[]
+
+  @@map("technicians")
+}
+
+model Booking {
+  id              String        @id @default(uuid())
+  status          BookingStatus @default(pending)
+  scheduledDate   DateTime
+  scheduledSlot   String
+  notes           String?
+  totalAmount     Float
+  paymentMethod   String
+  paymentStatus   String        @default("pending")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  completedAt     DateTime?
+
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+
+  serviceId       String
+  service         Service       @relation(fields: [serviceId], references: [id])
+
+  addressId       String?
+  address         Address?      @relation(fields: [addressId], references: [id])
+
+  technicianId    String?
+  technician      Technician?   @relation(fields: [technicianId], references: [id])
+
+  review          Review?
+
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  in_progress
+  completed
+  cancelled
+}
+
+model Review {
+  id           String   @id @default(uuid())
+  rating       Int
+  comment      String?
+  tags         String[]
+  createdAt    DateTime @default(now())
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+
+  technicianId String
+  technician   Technician @relation(fields: [technicianId], references: [id])
+
+  bookingId    String     @unique
+  booking      Booking    @relation(fields: [bookingId], references: [id])
+
+  @@map("reviews")
+}
