@@ -17,20 +17,19 @@ model ServiceCategory {
 }
 
 model Service {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
-  description String
-  price       Float
-  duration    Int      // minutes
-  emoji       String
-  warranty    String?
-  popular     Boolean  @default(false)
-  isActive    Boolean  @default(true)
-  rating      Float    @default(0.0)
-  reviewCount Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  aboutService  String   @default("")
+  price         Float
+  duration      Int      // minutes
+  emoji         String
+  warranty      String?
+  whatsIncluded String?
+  popular       Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   categoryId String
   category   ServiceCategory @relation(fields: [categoryId], references: [id])

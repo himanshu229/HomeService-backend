@@ -52,7 +52,7 @@ export const searchServices = async (req: Request, res: Response) => {
       where: {
         OR: [
           { name: { contains: q as string, mode: 'insensitive' } },
-          { description: { contains: q as string, mode: 'insensitive' } },
+          { aboutService: { contains: q as string, mode: 'insensitive' } },
           { category: { name: { contains: q as string, mode: 'insensitive' } } },
         ],
       },
@@ -71,7 +71,7 @@ export const getPopularServices = async (_req: Request, res: Response) => {
       where: { popular: true },
       include: { category: { select: { name: true, emoji: true, color: true } } },
       take: 10,
-      orderBy: { rating: 'desc' },
+      orderBy: { createdAt: 'desc' },
     });
     return res.json({ success: true, data: { services } });
   } catch (err: any) {

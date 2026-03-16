@@ -9,6 +9,7 @@ import authRoutes from './routes/auth';
 import serviceRoutes from './routes/services';
 import bookingRoutes from './routes/bookings';
 import addressRoutes from './routes/addresses';
+import adminRoutes from './routes/admin';
 import { errorHandler, notFound } from './middleware/errorMiddleware';
 
 const app = express();
@@ -63,6 +64,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/addresses', addressRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 + error handler
 app.use(notFound);
