@@ -1,0 +1,37 @@
+model Technician {
+  id          String   @id @default(uuid())
+  name        String
+  phone       String   @unique
+  email       String?  @unique
+  avatar      String?
+  rating      Float    @default(0.0)
+  reviewCount Int      @default(0)
+  experience  Int      // years
+  isAvailable Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings  Booking[]
+  reviews   Review[]
+  services  TechnicianService[]
+
+  @@index([phone])
+  @@map("technicians")
+}
+
+// Junction table: which services each technician can perform
+model TechnicianService {
+  id           String   @id @default(uuid())
+  technicianId String
+  serviceId    String
+  createdAt    DateTime @default(now())
+
+  technician Technician @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+  service    Service    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([technicianId, serviceId])
+  @@index([technicianId])
+  @@index([serviceId])
+  @@map("technician_services")
+}

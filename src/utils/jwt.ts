@@ -5,7 +5,6 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback_refresh_s
 
 export interface JwtPayload {
   userId: string;
-  email: string;
   role: 'USER' | 'ADMIN';
 }
 

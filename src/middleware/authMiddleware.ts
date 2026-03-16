@@ -4,7 +4,6 @@ import prisma from '../utils/prisma';
 
 export interface AuthRequest extends Request {
   userId?: string;
-  userEmail?: string;
   userRole?: 'USER' | 'ADMIN';
 }
 
@@ -20,17 +19,16 @@ export const authenticate = async (
     }
     const token = authHeader.split(' ')[1];
     const payload = verifyAccessToken(token);
-    // Verify user still exists in DB
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
-      select: { id: true, role: true },
-    });
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'User not found' });
+    // Verify the entity still exists in DB (look in correct table based on role)
+    if (payload.role === 'ADMIN') {
+      const admin = await prisma.admin.findUnique({ where: { id: payload.userId }, select: { id: true } });
+      if (!admin) return res.status(401).json({ success: false, message: 'Account not found' });
+    } else {
+      const user = await prisma.user.findUnique({ where: { id: payload.userId }, select: { id: true } });
+      if (!user) return res.status(401).json({ success: false, message: 'Account not found' });
     }
-    req.userId    = payload.userId;
-    req.userEmail = payload.email;
-    req.userRole  = user.role as 'USER' | 'ADMIN';
+    req.userId   = payload.userId;
+    req.userRole = payload.role;
     next();
   } catch {
     return res.status(401).json({ success: false, message: 'Invalid or expired token' });

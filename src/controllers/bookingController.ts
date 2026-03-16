@@ -11,7 +11,10 @@ export const createBooking = async (req: AuthRequest, res: Response) => {
 
     // Find an available technician
     const technician = await prisma.technician.findFirst({
-      where: { isAvailable: true, expertise: { has: service.categoryId } },
+      where: {
+        isAvailable: true,
+        services: { some: { serviceId } },
+      },
     });
 
     const booking = await prisma.booking.create({
@@ -25,7 +28,7 @@ export const createBooking = async (req: AuthRequest, res: Response) => {
         paymentMethod,
         notes: notes || null,
         totalAmount: service.price,
-        status: 'pending',
+        status: 'PENDING',
       },
       include: {
         service: { include: { category: true } },
@@ -82,12 +85,12 @@ export const cancelBooking = async (req: AuthRequest, res: Response) => {
     const { id } = req.params as { id: string };
     const booking = await prisma.booking.findFirst({ where: { id, userId: req.userId } });
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
-    if (['completed', 'cancelled'].includes(booking.status)) {
+    if (['COMPLETED', 'CANCELLED'].includes(booking.status)) {
       return res.status(400).json({ success: false, message: `Cannot cancel a ${booking.status} booking` });
     }
     const updated = await prisma.booking.update({
       where: { id },
-      data: { status: 'cancelled' },
+      data: { status: 'CANCELLED' },
       include: { service: true, address: true, technician: true },
     });
     return res.json({ success: true, data: { booking: updated } });
@@ -104,7 +107,7 @@ export const updateBookingStatus = async (req: AuthRequest, res: Response) => {
       where: { id },
       data: {
         status,
-        completedAt: status === 'completed' ? new Date() : undefined,
+        completedAt: status === 'COMPLETED' ? new Date() : undefined,
       },
       include: { service: true, address: true, technician: true },
     });
@@ -118,7 +121,7 @@ export const createReview = async (req: AuthRequest, res: Response) => {
   try {
     const { bookingId, rating, comment, tags } = req.body;
     const booking = await prisma.booking.findFirst({
-      where: { id: bookingId, userId: req.userId, status: 'completed' },
+      where: { id: bookingId, userId: req.userId, status: 'COMPLETED' },
     });
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found or not completed' });
     if (!booking.technicianId) return res.status(400).json({ success: false, message: 'No technician assigned' });

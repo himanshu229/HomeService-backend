@@ -2,14 +2,14 @@
   "name": "homeservice-backend",
   "version": "1.0.0",
   "main": "dist/server.js",
+  "prisma": {
+    "schema": "./prisma"
+  },
   "scripts": {
     "start": "node dist/server.js",
     "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 nodemon --watch src --ext ts --exec ts-node src/server.ts",
     "build": "tsc",
-    "db:migrate": "npx prisma migrate dev",
-    "db:generate": "npx prisma generate",
-    "db:seed": "ts-node prisma/seed.ts",
-    "db:studio": "npx prisma studio"
+    "db:setup": "npx prisma migrate deploy && npx prisma generate && ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

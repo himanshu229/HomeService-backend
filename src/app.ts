@@ -16,20 +16,10 @@ const app = express();
 // Security
 app.use(helmet());
 
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ?? '')
+const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:3000')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
-
-// Fallback list covers local development for every client
-const DEV_ORIGINS = [
-  'http://localhost:3000', // summerfix-admin (CRA)
-  'http://localhost:3001', // spare port
-  'http://localhost:8081', // React Native Metro bundler
-  'http://10.0.2.2:8081',  // Android emulator → host
-];
-
-const allowedOrigins = ALLOWED_ORIGINS.length ? ALLOWED_ORIGINS : DEV_ORIGINS;
 
 app.use(
   cors({
@@ -55,6 +45,7 @@ const limiter = rateLimit({
   max: 200,
   message: { success: false, message: 'Too many requests, please try again later' },
 });
+
 app.use('/api/', limiter);
 
 // Logging & body parsing

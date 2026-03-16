@@ -1,0 +1,13 @@
+model OTP {
+  id        String   @id @default(uuid())
+  code      String
+  phone     String
+  type      OtpType
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+  @@index([phone, code, type])
+  @@map("otps")
+}

@@ -1,0 +1,5 @@
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  SUB_ADMIN
+}

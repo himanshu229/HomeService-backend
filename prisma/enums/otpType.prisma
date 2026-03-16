@@ -1,0 +1,5 @@
+enum OtpType {
+  SIGNUP
+  LOGIN
+  FORGOT_PASSWORD
+}
