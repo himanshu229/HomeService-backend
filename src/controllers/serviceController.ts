@@ -4,10 +4,11 @@ import prisma from '../utils/prisma';
 export const getCategories = async (_req: Request, res: Response) => {
   try {
     const categories = await prisma.serviceCategory.findMany({
+      where: { isActive: true },
       include: { _count: { select: { services: true } } },
-      orderBy: { name: 'asc' },
+      orderBy: { sortOrder: 'asc' },
     });
-    return res.json({ success: true, data: { categories } });
+    return res.json({ success: true, data: categories });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -21,7 +22,7 @@ export const getServicesByCategory = async (req: Request, res: Response) => {
       include: { category: { select: { name: true, emoji: true, color: true } } },
       orderBy: { popular: 'desc' },
     });
-    return res.json({ success: true, data: { services } });
+    return res.json({ success: true, data: services });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -38,7 +39,7 @@ export const getServiceById = async (req: Request, res: Response) => {
       },
     });
     if (!service) return res.status(404).json({ success: false, message: 'Service not found' });
-    return res.json({ success: true, data: { service } });
+    return res.json({ success: true, data: service });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -47,7 +48,7 @@ export const getServiceById = async (req: Request, res: Response) => {
 export const searchServices = async (req: Request, res: Response) => {
   try {
     const { q } = req.query;
-    if (!q) return res.json({ success: true, data: { services: [] } });
+    if (!q) return res.json({ success: true, data: [] });
     const services = await prisma.service.findMany({
       where: {
         OR: [
@@ -59,7 +60,7 @@ export const searchServices = async (req: Request, res: Response) => {
       include: { category: { select: { name: true, emoji: true, color: true } } },
       take: 20,
     });
-    return res.json({ success: true, data: { services } });
+    return res.json({ success: true, data: services });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -73,7 +74,7 @@ export const getPopularServices = async (_req: Request, res: Response) => {
       take: 10,
       orderBy: { createdAt: 'desc' },
     });
-    return res.json({ success: true, data: { services } });
+    return res.json({ success: true, data: services });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
