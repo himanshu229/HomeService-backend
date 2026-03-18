@@ -3,9 +3,6 @@ model ServiceCategory {
   name        String   @unique
   slug        String   @unique
   emoji       String
-  description String
-  color       String
-  isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

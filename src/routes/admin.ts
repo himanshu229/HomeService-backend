@@ -10,7 +10,8 @@ import {
   adminUpdateService,
   adminDeleteService,
   adminToggleServiceStatus,
-} from '../controllers/adminController';
+  adminToggleServicePopular,
+} from '../controllers/serviceController';
 
 const router = Router();
 
@@ -29,5 +30,6 @@ router.post  ('/services',          adminCreateService);
 router.put   ('/services/:id',      adminUpdateService);
 router.delete('/services/:id',      adminDeleteService);
 router.patch ('/services/:id/toggle', adminToggleServiceStatus);
+router.patch ('/services/:id/toggle-popular', adminToggleServicePopular);
 
 export default router;
