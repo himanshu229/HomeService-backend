@@ -24,7 +24,8 @@ model Booking {
   technicianId String?
   technician   Technician? @relation(fields: [technicianId], references: [id])
 
-  review Review?
+  review         Review?
+  statusHistory  BookingStatusHistory[]
 
   @@index([userId])
   @@index([technicianId])
@@ -32,4 +33,19 @@ model Booking {
   @@index([status])
   @@index([scheduledDate])
   @@map("bookings")
+}
+
+model BookingStatusHistory {
+  id             String        @id @default(uuid())
+  bookingId      String
+  booking        Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  fromStatus     BookingStatus?
+  toStatus       BookingStatus
+  changedByUserId String
+  changedByRole  String        // 'USER' | 'ADMIN' | 'TECHNICIAN'
+  reason         String?
+  createdAt      DateTime      @default(now())
+
+  @@index([bookingId])
+  @@map("booking_status_history")
 }
